@@ -1,0 +1,152 @@
+{
+  "seed": 11,
+  "total": 17,
+  "errors": [
+    {
+      "type": "allergy_missing_code",
+      "tier": "critical",
+      "table": "allergies",
+      "record_id": 927,
+      "patient_id": "f4365a8c-242c-5eda-2008-ca54b6098ee2",
+      "description": "Mold (organism)",
+      "original_code": "84489001",
+      "original_system": "Unknown"
+    },
+    {
+      "type": "allergy_missing_code",
+      "tier": "critical",
+      "table": "allergies",
+      "record_id": 954,
+      "patient_id": "dc83b9d3-b983-4ac1-7345-9c32ade7782e",
+      "description": "Aspirin",
+      "original_code": "1191",
+      "original_system": "Unknown"
+    },
+    {
+      "type": "allergy_missing_code",
+      "tier": "critical",
+      "table": "allergies",
+      "record_id": 1041,
+      "patient_id": "f91da09d-1858-782b-7226-2da3f64a425d",
+      "description": "Mold (organism)",
+      "original_code": "84489001",
+      "original_system": "Unknown"
+    },
+    {
+      "type": "allergy_missing_code",
+      "tier": "critical",
+      "table": "allergies",
+      "record_id": 389,
+      "patient_id": "d6911048-4190-67e0-83c1-2dd3dbbf68d2",
+      "description": "Wheat (substance)",
+      "original_code": "412071004",
+      "original_system": "Unknown"
+    },
+    {
+      "type": "allergy_missing_code",
+      "tier": "critical",
+      "table": "allergies",
+      "record_id": 379,
+      "patient_id": "3ef323f9-e9e1-1365-f506-fdd7d658c465",
+      "description": "Allergic disposition (finding)",
+      "original_code": "609328004",
+      "original_system": "Unknown"
+    },
+    {
+      "type": "orphaned_medication",
+      "tier": "critical",
+      "table": "medications",
+      "record_id": 55928,
+      "description": "Hydrochlorothiazide 25 MG Oral Tablet",
+      "original_patient_id": "05fb6acd-4e78-210b-7be1-03e0defe06af",
+      "orphan_patient_id": "0b678bfc-66f2-4d65-aa98-7c0ad6843b46"
+    },
+    {
+      "type": "orphaned_medication",
+      "tier": "critical",
+      "table": "medications",
+      "record_id": 17070,
+      "description": "Hydrochlorothiazide 25 MG Oral Tablet",
+      "original_patient_id": "3715e4b1-a6ee-ed22-c51f-6c268aebecbf",
+      "orphan_patient_id": "b88d9c4c-3cd3-4583-8e38-288d39b8b4a8"
+    },
+    {
+      "type": "orphaned_medication",
+      "tier": "critical",
+      "table": "medications",
+      "record_id": 31770,
+      "description": "tramadol hydrochloride 50 MG Oral Tablet",
+      "original_patient_id": "13b58243-04e5-a494-45cd-f5ca2eefea8a",
+      "orphan_patient_id": "f7809f0d-c5bb-4c63-a77b-f1f58b780592"
+    },
+    {
+      "type": "orphaned_medication",
+      "tier": "critical",
+      "table": "medications",
+      "record_id": 26386,
+      "description": "aspirin 81 MG Oral Capsule [Vazalore]",
+      "original_patient_id": "e7341f51-d4a7-c7d7-e696-2fa9836a9e5b",
+      "orphan_patient_id": "fa7495ab-f503-4936-b9da-4a6ba966c0c1"
+    },
+    {
+      "type": "orphaned_medication",
+      "tier": "critical",
+      "table": "medications",
+      "record_id": 22419,
+      "description": "Hydrochlorothiazide 25 MG Oral Tablet",
+      "original_patient_id": "794afc50-b33c-4cbc-8397-cc8fb5c22f55",
+      "orphan_patient_id": "c580bc17-1942-43c3-a501-08f84b0dc101"
+    },
+    {
+      "type": "missing_birthdate",
+      "tier": "low",
+      "table": "patients",
+      "patient_id": "798f6cb5-9cc3-ef65-e23c-a54be57625fa",
+      "original_birth_date": "2022-05-26"
+    },
+    {
+      "type": "missing_birthdate",
+      "tier": "low",
+      "table": "patients",
+      "patient_id": "1bbeca3a-a4a2-3de1-2af7-4f8e94ecabfc",
+      "original_birth_date": "1996-04-12"
+    },
+    {
+      "type": "missing_birthdate",
+      "tier": "low",
+      "table": "patients",
+      "patient_id": "24177072-3c1a-60c6-3853-b4dd1ac125e5",
+      "original_birth_date": "2010-04-14"
+    },
+    {
+      "type": "missing_birthdate",
+      "tier": "low",
+      "table": "patients",
+      "patient_id": "5df8aa35-4067-5f32-4fec-3ffe64f0be06",
+      "original_birth_date": "1978-12-15"
+    },
+    {
+      "type": "missing_birthdate",
+      "tier": "low",
+      "table": "patients",
+      "patient_id": "fc918759-723d-9cf2-b11a-969dea806c64",
+      "original_birth_date": "1987-04-18"
+    },
+    {
+      "type": "duplicate_patient",
+      "tier": "high",
+      "table": "patients",
+      "patient_id": "4d86efb0-108c-4ba7-8f54-be70407855d1",
+      "duplicate_of": "5e54a3cd-5fbd-1368-26f5-87421ad592be",
+      "typo": "Ortiz -> Otriz"
+    },
+    {
+      "type": "duplicate_patient",
+      "tier": "high",
+      "table": "patients",
+      "patient_id": "5fbe8579-7d4a-40b8-8b99-e5eed07f819b",
+      "duplicate_of": "898bba0a-ee77-050f-1e86-2701a6c5ade8",
+      "typo": "Ryan -> Rayn"
+    }
+  ]
+}

@@ -1,0 +1,9 @@
+[project]
+name = "ehr-to-fhir-cutover"
+version = "0.1.0"
+requires-python = ">=3.14"
+dependencies = [
+    "pandas>=3.1.1",
+    "psycopg[binary]>=3.3.8",
+    "sqlalchemy>=2.1.8",
+]
