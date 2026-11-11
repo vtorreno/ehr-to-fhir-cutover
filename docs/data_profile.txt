@@ -1,0 +1,85 @@
+  ?column?   | count 
+-------------+-------
+ patients    |  1147
+ allergies   |  1095
+ medications | 56977
+(3 rows)
+
+ gender | count 
+--------+-------
+ M      |   564
+ F      |   583
+(2 rows)
+
+ code_system | count 
+-------------+-------
+             |     5
+ Unknown     |  1090
+(2 rows)
+
+ allergy_type | count 
+--------------+-------
+ intolerance  |    28
+ allergy      |  1067
+(2 rows)
+
+  category   | count 
+-------------+-------
+ medication  |   101
+ environment |   742
+ food        |   252
+(3 rows)
+
+ severity | count 
+----------+-------
+ MODERATE |   299
+          |   598
+ SEVERE   |    68
+ MILD     |   130
+(4 rows)
+
+ no_birthdate 
+--------------
+            5
+(1 row)
+
+ no_code 
+---------
+       5
+(1 row)
+
+ no_code 
+---------
+       0
+(1 row)
+
+           description           |      code       | count 
+---------------------------------+-----------------+-------
+ Allergic disposition (finding)  |                 |     1
+ Allergic disposition (finding)  | 609328004       |   209
+ Animal dander (substance)       | 264287008       |   101
+ Aspirin                         |                 |     1
+ Aspirin                         | 1191            |    34
+ Bee venom (substance)           | 288328004       |    33
+ cefdinir                        | 25037           |     5
+ Cow's milk (substance)          | 3718001         |    29
+ Eggs (edible) (substance)       | 102263004       |    33
+ Fish (substance)                | 735971005       |    29
+ Glycine max (substance)         | 256355007       |    13
+ Grass pollen (substance)        | 256277009       |    87
+ House dust mite (organism)      | 260147004       |    80
+ Ibuprofen                       | 5640            |     2
+ Latex (substance)               | 111088007       |    39
+ Lisinopril                      | 29046           |    28
+ Mold (organism)                 |                 |     2
+ Mold (organism)                 | 84489001        |   111
+ Peanut (substance)              | 762952008       |    29
+ Penicillin V                    | 7984            |    22
+ Shellfish (substance)           | 735029006       |    48
+ Sulfamethoxazole / Trimethoprim | 10831           |     9
+ Tree nut (substance)            | 442571000124108 |    31
+ Tree pollen (substance)         | 782576004       |    79
+ Wheat (substance)               |                 |     1
+ Wheat (substance)               | 412071004       |    39
+(26 rows)
+
