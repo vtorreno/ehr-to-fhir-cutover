@@ -1,5 +1,5 @@
 """
-Migrate the legacy data to FHIR.
+Migrate the legacy data to FHIR, quarantining anything that can't migrate.
 """
 
 import os
@@ -13,17 +13,14 @@ BATCH_SIZE = 500
 
 GENDERS = {"M": "male", "F": "female"}
 
-
 # --- Helpers -----------------------------------------------------------------
 
 def iso(value):
     """Date or timestamp -> ISO 8601 string (None stays None)."""
     return value.isoformat() if value else None
 
-
 def lower(value):
     return value.lower() if value else None
-
 
 def clean(obj):
     """Remove empty values. FHIR rejects nulls and empty strings."""
@@ -35,11 +32,8 @@ def clean(obj):
         return [v for v in obj if v not in (None, "", [], {})]
     return obj
 
-
 def concept(system, code, text):
     return {"coding": [{"system": system, "code": code, "display": text}], "text": text}
-
-
 
 # --- Legacy row -> FHIR resource ----------------------------------------------
 
@@ -55,7 +49,6 @@ def to_patient(r):
         "address": [{"line": [r["address"]], "city": r["city"],
                      "state": r["state"], "postalCode": r["zip"]}],
     })
-
 
 def to_allergy(r):
     reaction = None
@@ -75,7 +68,6 @@ def to_allergy(r):
         "onsetDateTime": iso(r["start_date"]),
         "reaction": reaction,
     })
-
 
 def to_medication(r):
     reason = [concept(SNOMED, r["reason_code"], r["reason_desc"])] if r["reason_code"] else None
@@ -124,15 +116,38 @@ with get_connection() as conn:
     patients = conn.execute("SELECT * FROM legacy.patients ORDER BY patient_id").fetchall()
     allergies = conn.execute("SELECT * FROM legacy.allergies ORDER BY allergy_id").fetchall()
     medications = conn.execute("SELECT * FROM legacy.medications ORDER BY medication_id").fetchall()
+    # Client decisions from the normalization workbook (Phase 5), if any yet
+    has_decisions = conn.execute("SELECT to_regclass('migration.decisions')").fetchone()
+    decisions = {}
+    if has_decisions["to_regclass"]:
+        for d in conn.execute("SELECT * FROM migration.decisions"):
+            decisions[(d["source_table"], d["source_id"])] = d
 
 patient_ids = {r["patient_id"] for r in patients}
 quarantine = []  # (source_table, source_id, reason, detail)
 to_load = {"patients": [], "allergies": [], "medications": []}  # (source_id, resource)
 
+def apply_decision(table, source_id, r):
+    """Apply the client's decision to a legacy row. None means it was excluded.
+    The legacy data itself is never changed; only this in-memory copy."""
+    d = decisions.get((table, str(source_id)))
+    if d is None:
+        return r
+    if d["decision"] == "EXCLUDE":
+        quarantine.append((table, source_id, "EXCLUDED",
+                           f"{d['reason']} (approved by {d['decided_by']})"))
+        return None
+    if d["decision"] == "RELINK":
+        return {**r, "patient_id": d["patient_id"]}
+    return {**r, "code": d["code"], "code_system": d["code_system"]}  # APPROVE / CHANGE
+
 for r in patients:
     to_load["patients"].append((r["patient_id"], to_patient(r)))
 
 for r in allergies:
+    r = apply_decision("allergies", r["allergy_id"], r)
+    if r is None:
+        continue
     if r["patient_id"] not in patient_ids:
         quarantine.append(("allergies", r["allergy_id"], "PATIENT_NOT_FOUND", r["patient_id"]))
     elif not r["code"]:
@@ -144,6 +159,9 @@ for r in allergies:
         to_load["allergies"].append((r["allergy_id"], to_allergy(r)))
 
 for r in medications:
+    r = apply_decision("medications", r["medication_id"], r)
+    if r is None:
+        continue
     if r["patient_id"] not in patient_ids:
         quarantine.append(("medications", r["medication_id"], "PATIENT_NOT_FOUND", r["patient_id"]))
     else:

@@ -1,0 +1,136 @@
+{
+  "run_at": "2026-11-11T04:44:04",
+  "checks": [
+    {
+      "id": "C1",
+      "tier": "critical",
+      "name": "Patients reconciled",
+      "status": "PASS",
+      "expected": "0 unresolved",
+      "actual": "1,147 / 1,147 accounted for",
+      "records": []
+    },
+    {
+      "id": "C2",
+      "tier": "critical",
+      "name": "Allergies reconciled",
+      "status": "FAIL",
+      "expected": "0 unresolved",
+      "actual": "5 unresolved (0 missing with no quarantine record)",
+      "records": [
+        "927",
+        "954",
+        "1041",
+        "389",
+        "379"
+      ]
+    },
+    {
+      "id": "C3",
+      "tier": "critical",
+      "name": "Medications reconciled",
+      "status": "FAIL",
+      "expected": "0 unresolved",
+      "actual": "5 unresolved (0 missing with no quarantine record)",
+      "records": [
+        "55928",
+        "17070",
+        "31770",
+        "26386",
+        "22419"
+      ]
+    },
+    {
+      "id": "C4",
+      "tier": "critical",
+      "name": "Allergies and medications coded",
+      "status": "PASS",
+      "expected": "0",
+      "actual": "0 without a code",
+      "records": []
+    },
+    {
+      "id": "C5",
+      "tier": "critical",
+      "name": "Links resolve",
+      "status": "PASS",
+      "expected": "0",
+      "actual": "0 without a valid patient",
+      "records": []
+    },
+    {
+      "id": "C6",
+      "tier": "critical",
+      "name": "Values match",
+      "status": "PASS",
+      "expected": "all match",
+      "actual": "3 / 3 value sets match",
+      "records": []
+    },
+    {
+      "id": "C7",
+      "tier": "critical",
+      "name": "Spot check",
+      "status": "PASS",
+      "expected": "all match",
+      "actual": "20 / 20 match the source",
+      "records": []
+    },
+    {
+      "id": "H1",
+      "tier": "high",
+      "name": "Possible duplicate patients",
+      "status": "FLAG",
+      "expected": "listed for review",
+      "actual": "2 pairs",
+      "records": [
+        [
+          "4d86efb0-108c-4ba7-8f54-be70407855d1",
+          "5e54a3cd-5fbd-1368-26f5-87421ad592be",
+          "Otriz / Ortiz"
+        ],
+        [
+          "5fbe8579-7d4a-40b8-8b99-e5eed07f819b",
+          "898bba0a-ee77-050f-1e86-2701a6c5ade8",
+          "Rayn / Ryan"
+        ]
+      ]
+    },
+    {
+      "id": "L1",
+      "tier": "low",
+      "name": "Missing birthdates",
+      "status": "FLAG",
+      "expected": "listed for cleanup",
+      "actual": "5 (source: 5)",
+      "records": [
+        "1bbeca3a-a4a2-3de1-2af7-4f8e94ecabfc",
+        "24177072-3c1a-60c6-3853-b4dd1ac125e5",
+        "5df8aa35-4067-5f32-4fec-3ffe64f0be06",
+        "798f6cb5-9cc3-ef65-e23c-a54be57625fa",
+        "fc918759-723d-9cf2-b11a-969dea806c64"
+      ]
+    },
+    {
+      "id": "L2",
+      "tier": "low",
+      "name": "Unspecific allergies (allergen not named)",
+      "status": "FLAG",
+      "expected": "listed for cleanup",
+      "actual": "209",
+      "records": []
+    },
+    {
+      "id": "Q",
+      "tier": "info",
+      "name": "Quarantine summary",
+      "status": "INFO",
+      "expected": "",
+      "actual": "10 rows",
+      "records": [
+        "allergies: ALLERGY_CODE_MISSING = 5",
+        "medications: PATIENT_NOT_FOUND = 5"
+      ]
+    }
+  ]
+}

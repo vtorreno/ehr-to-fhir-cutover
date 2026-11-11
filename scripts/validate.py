@@ -12,9 +12,9 @@ from psycopg.rows import dict_row
 from db import get_connection
 
 FHIR_URL = os.environ["FHIR_URL"]
-OUTPUT = "reports/validation.json"
+OUTPUT = 'reports/validation.json'
 GENDERS = {"M": "male", "F": "female"}
-UNSPECIFIC_ALLERGY = "609328004"  # Allergic disposition (finding)
+UNSPECIFIC_ALLERGY = '609328004'  # Allergic disposition (finding)
 
 checks = []
 
@@ -55,10 +55,15 @@ hapi_meds = fetch_all("MedicationRequest", "medicationCodeableConcept,subject,st
 
 with get_connection() as conn:
     conn.row_factory = dict_row
-    patients = conn.execute("SELECT * FROM legacy.patients").fetchall()
-    allergies = conn.execute("SELECT * FROM legacy.allergies").fetchall()
-    medications = conn.execute("SELECT * FROM legacy.medications").fetchall()
+    patients = conn.execute("SELECT * FROM legacy.patients ORDER BY patient_id").fetchall()
+    allergies = conn.execute("SELECT * FROM legacy.allergies ORDER BY allergy_id").fetchall()
+    medications = conn.execute("SELECT * FROM legacy.medications ORDER BY medication_id").fetchall()
     quarantine = conn.execute("SELECT * FROM migration.quarantine").fetchall()
+    has_decisions = conn.execute("SELECT to_regclass('migration.decisions')").fetchone()
+    decided = set()
+    if has_decisions["to_regclass"]:
+        decided = {(d["source_table"], d["source_id"])
+                   for d in conn.execute("SELECT source_table, source_id FROM migration.decisions")}
 
 held = {(q["source_table"], q["source_id"]): q["reason"] for q in quarantine}
 
@@ -115,13 +120,17 @@ add("C6", "Values match", "critical", "FAIL" if mismatched else "PASS",
     f"{len(comparisons) - len(mismatched)} / {len(comparisons)} value sets match",
     "all match", mismatched)
 
-# Spot check: 20 records (same 20 every run), full resource fetched from HAPI
+# Spot check: 20 records (same 20 every run), full resource fetched from HAPI.
+# Only records migrated as-is: ones changed by a client decision differ from the
+# legacy row on purpose, and C2/C3 already account for them.
+as_is_allergies = [a for a in loaded_allergies if ("allergies", str(a["allergy_id"])) not in decided]
+as_is_meds = [m for m in loaded_meds if ("medications", str(m["medication_id"])) not in decided]
 rng = random.Random(11)
 sample = ([("Patient", p["patient_id"], p) for p in rng.sample(patients, 7)]
           + [("AllergyIntolerance", f"legacy-allergy-{a['allergy_id']}", a)
-             for a in rng.sample(loaded_allergies, min(7, len(loaded_allergies)))]
+             for a in rng.sample(as_is_allergies, min(7, len(as_is_allergies)))]
           + [("MedicationRequest", f"legacy-med-{m['medication_id']}", m)
-             for m in rng.sample(loaded_meds, min(6, len(loaded_meds)))])
+             for m in rng.sample(as_is_meds, min(6, len(as_is_meds)))])
 spot_failures = []
 for resource_type, fhir_id, row in sample:
     response = requests.get(f"{FHIR_URL}/{resource_type}/{fhir_id}", timeout=60)
@@ -183,6 +192,10 @@ add("L2", "Unspecific allergies (allergen not named)", "low",
 reasons = Counter(f"{q['source_table']}: {q['reason']}" for q in quarantine)
 add("Q", "Quarantine summary", "info", "INFO", f"{len(quarantine)} rows",
     records=[f"{reason} = {n}" for reason, n in sorted(reasons.items())])
+
+excluded = [f"{q['source_table']} {q['source_id']}: {q['detail']}"
+            for q in quarantine if q["reason"] == "EXCLUDED"]
+add("X", "Signed-off exclusions", "info", "INFO", f"{len(excluded)} records", records=excluded)
 
 # --- Save and print ---------------------------------------------------------------
 

@@ -1,5 +1,5 @@
 {
-  "run_at": "2026-11-11T04:44:04",
+  "run_at": "2026-11-11T09:32:40",
   "checks": [
     {
       "id": "C1",
@@ -14,31 +14,19 @@
       "id": "C2",
       "tier": "critical",
       "name": "Allergies reconciled",
-      "status": "FAIL",
+      "status": "PASS",
       "expected": "0 unresolved",
-      "actual": "5 unresolved (0 missing with no quarantine record)",
-      "records": [
-        "927",
-        "954",
-        "1041",
-        "389",
-        "379"
-      ]
+      "actual": "1,095 / 1,095 accounted for",
+      "records": []
     },
     {
       "id": "C3",
       "tier": "critical",
       "name": "Medications reconciled",
-      "status": "FAIL",
+      "status": "PASS",
       "expected": "0 unresolved",
-      "actual": "5 unresolved (0 missing with no quarantine record)",
-      "records": [
-        "55928",
-        "17070",
-        "31770",
-        "26386",
-        "22419"
-      ]
+      "actual": "56,977 / 56,977 accounted for",
+      "records": []
     },
     {
       "id": "C4",
@@ -117,7 +105,7 @@
       "name": "Unspecific allergies (allergen not named)",
       "status": "FLAG",
       "expected": "listed for cleanup",
-      "actual": "209",
+      "actual": "210",
       "records": []
     },
     {
@@ -126,10 +114,20 @@
       "name": "Quarantine summary",
       "status": "INFO",
       "expected": "",
-      "actual": "10 rows",
+      "actual": "1 rows",
       "records": [
-        "allergies: ALLERGY_CODE_MISSING = 5",
-        "medications: PATIENT_NOT_FOUND = 5"
+        "medications: EXCLUDED = 1"
+      ]
+    },
+    {
+      "id": "X",
+      "tier": "info",
+      "name": "Signed-off exclusions",
+      "status": "INFO",
+      "expected": "",
+      "actual": "1 records",
+      "records": [
+        "medications 17070: Original patient record purged; 1995 prescription not relevant to current care (approved by VT)"
       ]
     }
   ]
