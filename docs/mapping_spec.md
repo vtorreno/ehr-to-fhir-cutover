@@ -77,6 +77,7 @@
 - **Code systems:**
   - `SNOMED-CT` → `http://snomed.info/sct`
   - `RxNorm` → `http://www.nlm.nih.gov/research/umls/rxnorm`
+  - `Unknown` → looked up in the [code system crosswalk](#code-system-crosswalk); codes not in it are quarantined
 - **Nothing is silently dropped.** Every source record is either loaded or quarantined with a reason. Columns that aren't migrated (`encounter_id`) are listed above.
 
 ---
@@ -89,6 +90,7 @@ Records that can't be migrated are written to a quarantine table with a reason.
 |---|---|---|
 | `ALLERGY_CODE_MISSING` | Allergy has a description but no code | Client confirms a code in the normalization workbook |
 | `PATIENT_NOT_FOUND` | Record points to a patient that doesn't exist | Client relinks it to the right patient, or excludes it with a reason, in the workbook |
+| `UNKNOWN_CODE_SYSTEM` | Code system is `Unknown` and the code isn't in the crosswalk | Review the code, add it to the crosswalk with evidence, rerun |
 | `FHIR_REJECTED` | The FHIR server refused the record | Read the server's error, fix the conversion, rerun |
 
 Missing birthdates and duplicate patients are **not** quarantined. They migrate and are flagged in the cutover report.
@@ -121,6 +123,43 @@ The pipeline generates an Excel workbook from the quarantine table. The client f
 
 ---
 
+## Code system crosswalk
+
+The legacy data has **1,090 allergies across 22 codes** with `code_system = 'Unknown'`. None of these codes appear elsewhere in the data with a known system. Each code was assigned a system from the evidence below; the migration uses this table only when the legacy system is `Unknown`.
+
+**Evidence rules:**
+- **SNOMED:** the description ends in a SNOMED semantic tag, such as `(substance)`, `(organism)`, `(finding)`
+- **RxNorm:** no semantic tag, and the code is the RxNorm ingredient code for the named drug
+
+| Code | Description | Rows | System | Evidence |
+|---|---|---|---|---|
+| 609328004 | Allergic disposition (finding) | 209 | SNOMED | Semantic tag `(finding)` |
+| 84489001 | Mold (organism) | 111 | SNOMED | Semantic tag `(organism)` |
+| 264287008 | Animal dander (substance) | 101 | SNOMED | Semantic tag `(substance)` |
+| 256277009 | Grass pollen (substance) | 87 | SNOMED | Semantic tag `(substance)` |
+| 260147004 | House dust mite (organism) | 80 | SNOMED | Semantic tag `(organism)` |
+| 782576004 | Tree pollen (substance) | 79 | SNOMED | Semantic tag `(substance)` |
+| 735029006 | Shellfish (substance) | 48 | SNOMED | Semantic tag `(substance)` |
+| 412071004 | Wheat (substance) | 39 | SNOMED | Semantic tag `(substance)` |
+| 111088007 | Latex (substance) | 39 | SNOMED | Semantic tag `(substance)` |
+| 288328004 | Bee venom (substance) | 33 | SNOMED | Semantic tag `(substance)` |
+| 102263004 | Eggs (edible) (substance) | 33 | SNOMED | Semantic tag `(substance)` |
+| 442571000124108 | Tree nut (substance) | 31 | SNOMED | Semantic tag `(substance)` |
+| 762952008 | Peanut (substance) | 29 | SNOMED | Semantic tag `(substance)` |
+| 3718001 | Cow's milk (substance) | 29 | SNOMED | Semantic tag `(substance)` |
+| 735971005 | Fish (substance) | 29 | SNOMED | Semantic tag `(substance)` |
+| 256355007 | Glycine max (substance) | 13 | SNOMED | Semantic tag `(substance)` (soybean) |
+| 1191 | Aspirin | 34 | RxNorm | RxNorm ingredient code for aspirin |
+| 29046 | Lisinopril | 28 | RxNorm | RxNorm ingredient code for lisinopril |
+| 7984 | Penicillin V | 22 | RxNorm | RxNorm ingredient code for penicillin V |
+| 10831 | Sulfamethoxazole / Trimethoprim | 9 | RxNorm | RxNorm ingredient code for the combination |
+| 25037 | cefdinir | 5 | RxNorm | RxNorm ingredient code for cefdinir |
+| 5640 | Ibuprofen | 2 | RxNorm | RxNorm ingredient code for ibuprofen |
+
+**Data quality observation (doesn't block):** `609328004 | Allergic disposition (finding)` (209 rows) is a valid SNOMED code, but it means "allergic, allergen unspecified." It migrates as-is; the cutover report lists it, because a specific allergen is far more useful to a prescriber.
+
+---
+
 ## Acceptance tests
 
 | # | Test | Pass condition |
@@ -130,7 +169,7 @@ The pipeline generates an Excel workbook from the quarantine table. The client f
 | 3 | Codes | 100% of loaded allergies and medications have a code |
 | 4 | Values | Counts per value match the source (gender, active/resolved, active/completed) |
 | 5 | Spot check | 20 random records match the source field by field |
-| 6 | Quarantine | First run: exactly 10 records (5 `ALLERGY_CODE_MISSING`, 5 `PATIENT_NOT_FOUND`) |
+| 6 | Quarantine | First run: exactly 10 records (5 `ALLERGY_CODE_MISSING`, 5 `PATIENT_NOT_FOUND`); no `UNKNOWN_CODE_SYSTEM` or `FHIR_REJECTED` |
 
 **Go/No-Go:** the cutover is **READY** only when tests 1–5 pass and no Critical record is left unresolved in quarantine.
 
@@ -138,7 +177,7 @@ The pipeline generates an Excel workbook from the quarantine table. The client f
 
 ## To confirm from the profile
 
-- [ ] Code system values are exactly `SNOMED-CT` and `RxNorm`
+- [x] Code system values: **not** just `SNOMED-CT` and `RxNorm`. 1,090 allergies (22 codes) are `Unknown`; resolved with the [code system crosswalk](#code-system-crosswalk)
 - [ ] Gender values are only `M` and `F`
 - [ ] Severity values are only `MILD`, `MODERATE`, `SEVERE` (or empty)
 - [ ] Allergy types and categories match the values listed above
